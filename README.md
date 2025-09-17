@@ -25,10 +25,10 @@ CogniLink AI acts like a digital waiter in a multi-cuisine restaurant — it rec
 ## 🎥 Demo & Assets
 
 - Watch the demo video: https://drive.google.com/file/d/16yvfJdSYWzN1cVLoIy6-CTRXvY81rKmc/view?usp=drive_link
-- Browse screenshots showcasing frontend, backend flows, and architecture:
-- ![Frontend Design](Frontend.png)
-- ![Backend Flow](Flowchart.png)
-- ![Conversation](Prompt-Answer.png)
+- Browse screenshots showcasing frontend, backend flow diagram and a response example:
+![Frontend Design](Frontend.png)
+![Backend Flow](Flow chart.png)
+![Conversation](Prompt-Answer.png)
 
 
 ---
@@ -64,7 +64,7 @@ Contributions, feedback, and suggestions are welcome! Please open an issue or pu
 
 ## 📬 Contact
 
-Any questions? Reach out via GitHub Discussions or email [ayush0108.gupta@gmail.com].
+Any questions? Reach out via GitHub Discussions or email ayush0108.gupta@gmail.com
 
 ---
 
