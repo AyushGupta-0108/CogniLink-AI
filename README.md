@@ -50,6 +50,12 @@ Open the sample frontend locally for a simple interactive demo:  open Prototype.
   
 ---
 
+## 📍 Roadmap  
+You can check our detailed development plan here:  
+👉 [View Roadmap](ROADMAP.md)
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
