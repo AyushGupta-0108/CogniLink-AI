@@ -141,27 +141,38 @@ body { font-family: Arial, sans-serif; background:#111827; color:white; display:
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
+  // expose to non-module scripts
+  window.auth = auth;
+  window.provider = provider;
+  window.isLoggedIn = false;
+
   const loginBtn = document.getElementById('loginBtn');
   const sendBtn = document.getElementById('sendBtn');
 
-  loginBtn.addEventListener('click', async () => {
-    try { await signInWithPopup(auth, provider); } 
-    catch(e){ alert("Login failed: "+e.message); }
-  });
+  if (loginBtn) {
+    loginBtn.addEventListener('click', async () => {
+      try { await signInWithPopup(auth, provider); }
+      catch(e){ alert("Login failed: "+e.message); }
+    });
+  }
 
   onAuthStateChanged(auth, user => {
+    window.isLoggedIn = !!user;
     if(user){
-      loginBtn.style.display='none';
-      sendBtn.disabled=false;
-      alert("Logged in as: "+user.email);
-    }else{
-      loginBtn.style.display='block';
-      sendBtn.disabled=true;
+      if(loginBtn) loginBtn.style.display='none';
+      if(sendBtn) sendBtn.disabled=false;
+      console.log('Logged in as', user.email);
+    } else {
+      if(loginBtn) loginBtn.style.display='block';
+      if(sendBtn) sendBtn.disabled=true;
+      console.log('Not logged in');
     }
   });
 
-  window.logout = () => signOut(auth).then(()=>alert("Logged out"));
+  window.logout = () => signOut(auth).then(()=>console.log("Logged out"));
 </script>
+
+
 
 <!-- Existing chat script -->
 <script>
@@ -253,26 +264,25 @@ document.getElementById('inputField').addEventListener('keypress',function(e){
 });
 </script>  <!-- ✅ close this script first -->
 
-
-<!-- ✅ Popup must be outside the script -->
+<!-- Login notice popup: place this outside any <script> tags, near the end of body -->
 <div id="loginNoticePopup" style="
     display:none;
     position:fixed;
     top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.6);
     justify-content:center; align-items:center;
-    z-index:1000;
+    z-index:10000;
 ">
-    <div style="
-        background:#1f2937; color:white; padding:2rem; border-radius:1rem;
-        text-align:center; max-width:400px; width:90%;
-    ">
-        <h2>⚠️ Please login to use</h2>
-        <button id="noticeOkBtn" style="
-            margin-top:1rem; padding:0.5rem 1rem; background:#2563eb; color:white;
-            border:none; border-radius:0.5rem; cursor:pointer;
-        ">OK</button>
-    </div>
+  <div style="
+      background:#1f2937; color:white; padding:2rem; border-radius:1rem;
+      text-align:center; max-width:400px; width:90%;
+  ">
+    <h2 style="margin:0 0 1rem;">⚠️ Please login to use</h2>
+    <button id="noticeOkBtn" style="
+        margin-top:1rem; padding:0.5rem 1rem; background:#2563eb; color:white;
+        border:none; border-radius:0.5rem; cursor:pointer;
+    ">OK</button>
+  </div>
 </div>
 
 <script>
@@ -281,24 +291,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginNoticePopup = document.getElementById('loginNoticePopup');
   const noticeOkBtn = document.getElementById('noticeOkBtn');
 
-  if (!inputField) return;
+  if (!inputField) { console.error("inputField not found"); return; }
 
   let noticeShown = false;
 
   inputField.addEventListener('focus', () => {
-      if (!auth.currentUser && !noticeShown) {
-          loginNoticePopup.style.display = 'flex';
-          inputField.blur();
-          noticeShown = true;
-      }
+    // use the global flag set by the module script
+    if (!window.isLoggedIn && !noticeShown) {
+      loginNoticePopup.style.display = 'flex';
+      inputField.blur();
+      noticeShown = true;
+    }
   });
 
   noticeOkBtn.addEventListener('click', () => {
-      loginNoticePopup.style.display = 'none';
-      inputField.focus();
+    loginNoticePopup.style.display = 'none';
+    inputField.focus();
   });
 });
 </script>
+
 </body>
 </html>
 
