@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogniLink AI Platform</title>
+<style>
+/* --- Existing styles --- */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, sans-serif; background:#111827; color:white; display:flex; flex-direction:column; min-height:100vh; }
+.header { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.5rem; border-bottom:1px solid #1f2937; background:#111827; position:sticky; top:0; z-index:10; }
+.logo-section { display:flex; align-items:center; gap:0.75rem; }
+.logo-container { width:3rem; height:3rem; }
+.logo-container img { width:100%; height:100%; object-fit:contain; }
+.logo-text { font-size:1.25rem; font-weight:600; }
+.header-buttons { display:flex; gap:0.75rem; }
+.new-chat-btn, .feedback-btn { display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; background:#1f2937; border:none; border-radius:0.5rem; color:white; cursor:pointer; text-decoration:none; }
+.new-chat-btn:hover, .feedback-btn:hover { background:#374151; }
+.main-content { flex:1; display:flex; min-height:0; overflow:hidden; }
+.recent-chats { width:220px; background:#1f2937; border-right:1px solid #374151; padding:1rem; overflow-y:auto; }
+.recent-chats h3 { font-size:1.125rem; margin-bottom:1rem; color:#9ca3af; }
+.chat-item { background:#374151; margin-bottom:0.5rem; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; }
+.chat-item:hover { background:#4b5563; }
+.messages-area { flex:1; display:flex; flex-direction:column; justify-content:flex-start; padding:1.5rem 1rem; overflow-y:auto; }
+.messages-container { flex:1; display:flex; flex-direction:column; justify-content:flex-start; max-width:48rem; margin:0 auto; }
+.welcome-screen { text-align:center; color:#9ca3af; margin-top:5rem; }
+.welcome-screen h2 { font-size:1.875rem; font-weight:bold; margin-bottom:1rem; }
+.welcome-screen p { font-size:1.125rem; }
+.message { display:flex; margin-bottom:1.5rem; }
+.message.user { justify-content:flex-end; }
+.message.ai { justify-content:flex-start; }
+.message-content { max-width:80%; padding:1rem 1.5rem; border-radius:1rem; white-space:pre-wrap; word-break:break-word; }
+.message.user .message-content { background:#2563eb; color:white; }
+.message.ai .message-content { background:#1f2937; color:#f3f4f6; }
+.loading-message { display:flex; align-items:center; gap:0.75rem; }
+.loading-dots { display:flex; gap:0.25rem; }
+.loading-dot { width:0.5rem; height:0.5rem; background:#9ca3af; border-radius:50%; animation:bounce 1.4s infinite ease-in-out both; }
+.loading-dot:nth-child(1){animation-delay:-0.32s;}
+.loading-dot:nth-child(2){animation-delay:-0.16s;}
+@keyframes bounce { 0%,80%,100% { transform:scale(0); } 40% { transform:scale(1); } }
+.loading-text { color:#9ca3af; }
+.input-area { border-top:1px solid #1f2937; padding:1rem; display:flex; flex-direction:column; align-items:center; gap:0.5rem; background:#111827; position:sticky; bottom:0; }
+.feedback-notice { text-align:left; font-size:0.875rem; color:#6b7280; max-width:48rem; width:100%; }
+.input-container { width:100%; max-width:48rem; display:flex; align-items:flex-end; gap:0.75rem; background:#1f2937; border-radius:1rem; padding:0.75rem 1rem; }
+.input-field { flex:1; background:transparent; border:none; outline:none; color:white; resize:none; max-height:8rem; font-family:inherit; font-size:1rem; }
+.input-field::placeholder { color:#6b7280; }
+.send-btn { padding:0.5rem; background:#2563eb; border:none; border-radius:0.5rem; cursor:pointer; }
+.send-btn:hover:not(:disabled) { background:#1d4ed8; }
+.send-btn:disabled { background:#374151; cursor:not-allowed; }
+.sidebar { width:280px; background:#1f2937; border-left:1px solid #374151; padding:1.5rem; overflow-y:auto; }
+.sidebar h3 { font-size:1.125rem; margin-bottom:1rem; color:#9ca3af; }
+.prompt-category { margin-bottom:1.5rem; }
+.prompt-category h4 { font-size:0.875rem; color:#6b7280; text-transform:uppercase; margin-bottom:0.75rem; }
+.prompt-item { background:#374151; padding:0.75rem; border-radius:0.5rem; margin-bottom:0.5rem; cursor:pointer; font-size:0.875rem; line-height:1.4; }
+.prompt-item:hover { background:#4b5563; transform:translateX(4px); }
+@media (max-width:1200px) { .recent-chats { display:none; } }
+@media (max-width:768px) { .sidebar { display:none; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo-section">
+        <div class="logo-container">
+            <img src="https://ik.imagekit.io/pgus2c0zx/LogoNoBackground.png" alt="CogniLink Logo">
+        </div>
+        <span class="logo-text">CogniLink</span>
+    </div>
+    <div class="header-buttons">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdaHARPxlD0MeFM4G5__Q7K22HVWYaPh_wfJ1pvGV-AdJv9Bw/viewform?usp=header" target="_blank" class="feedback-btn">
+            <span>📝 Feedback</span>
+        </a>
+        <button class="new-chat-btn" id="newChatBtn"><span>➕ New Chat</span></button>
+        <button class="new-chat-btn" id="loginBtn"><span>🔑 Login</span></button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="recent-chats" id="recentChats">
+        <h3>Recent Chats</h3>
+    </div>
+
+    <div class="messages-area" id="messagesArea">
+        <div class="messages-container" id="messagesContainer">
+            <div class="welcome-screen" id="welcomeScreen">
+                <h2>Welcome to CogniLink AI</h2>
+                <p>How can I assist you today?</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h3>Try asking?</h3>
+        <div class="prompt-category">
+            <h4>Simple Tasks</h4>
+            <div class="prompt-item" onclick="sendPrompt('Write a short story where a robot discovers it has emotions for the first time.')">Write a short story where a robot discovers it has emotions for the first time.</div>
+            <div class="prompt-item" onclick="sendPrompt('Illustrate a fantasy landscape with waterfalls.')">Illustrate a fantasy landscape with waterfalls.</div>
+            <div class="prompt-item" onclick="sendPrompt('Generate a small python code that prints a random number.')">Generate a small python code that prints a random number.</div>
+        </div>
+        <div class="prompt-category">
+            <h4>Complex Tasks</h4>
+            <div class="prompt-item" onclick="sendPrompt('Write a humorous advertisement for a time-traveling toaster, code a small HTML page to display the ad, and generate an image of the toaster in action.')">
+                Write a humorous advertisement for a time-traveling toaster, code a small HTML page to display the ad, and generate an image of the toaster in action.
+            </div>
+            <div class="prompt-item" onclick="sendPrompt('Create a short story about a robot exploring a fantasy world, and generate a Python function that prints a map of the world. Also, visualize one scene from the story.')">
+                Create a short story about a robot exploring a fantasy world, and generate a Python function that prints a map of the world. Also, visualize one scene from the story.
+            </div>
+            <div class="prompt-item" onclick="sendPrompt('Describe a superhero with a quirky superpower. Create a JavaScript function that reverses a string. Generate an image of a sunset over a futuristic city.')">
+                Describe a superhero with a quirky superpower. Create a JavaScript function that reverses a string. Generate an image of a sunset over a futuristic city.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="input-area">
+    <div class="feedback-notice">Please click the feedback button after using the platform</div>
+    <div class="input-container">
+        <textarea id="inputField" class="input-field" placeholder="Message CogniLink..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" disabled>▶</button>
+    </div>
+</div>
+
+<!-- Firebase Scripts -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAehpDu97VYZiW3Gs39wliUzrfLMDiQByw",
+    authDomain: "cognilink-ai.firebaseapp.com",
+    projectId: "cognilink-ai",
+    storageBucket: "cognilink-ai.firebasestorage.app",
+    messagingSenderId: "768063000383",
+    appId: "1:768063000383:web:6dea8d546752c2a746cd8a",
+    measurementId: "G-Z2WDYG9PDM"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const loginBtn = document.getElementById('loginBtn');
+  const sendBtn = document.getElementById('sendBtn');
+
+  loginBtn.addEventListener('click', async () => {
+    try { await signInWithPopup(auth, provider); } 
+    catch(e){ alert("Login failed: "+e.message); }
+  });
+
+  onAuthStateChanged(auth, user => {
+    if(user){
+      loginBtn.style.display='none';
+      sendBtn.disabled=false;
+      alert("Logged in as: "+user.email);
+    }else{
+      loginBtn.style.display='block';
+      sendBtn.disabled=true;
+    }
+  });
+
+  window.logout = () => signOut(auth).then(()=>alert("Logged out"));
+</script>
+
+<!-- Existing chat script -->
+<script>
+var isLoading=false;
+var chatHistory=[];
+var currentChat={id:null,messages:[]};
+var chatCounter=1;
+
+function addMessage(type,content){
+    if(!currentChat.messages)currentChat.messages=[];
+    currentChat.messages.push({type:type,msg:content});
+    var welcome=document.getElementById('welcomeScreen');
+    if(welcome)welcome.remove();
+    var c=document.getElementById('messagesContainer');
+    var msg=document.createElement('div');
+    msg.className='message '+type;
+    var contentDiv=document.createElement('div');
+    contentDiv.className='message-content';
+    contentDiv.textContent=content;
+    msg.appendChild(contentDiv);
+    c.appendChild(msg);
+    scrollToBottom();
+}
+function addLoadingMessage(){
+    var c=document.getElementById('messagesContainer');
+    var msg=document.createElement('div');
+    msg.className='message ai';
+    msg.id='loadingMessage';
+    msg.innerHTML='<div class="message-content"><div class="loading-message"><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span class="loading-text">Working on your query...</span></div></div>';
+    c.appendChild(msg);
+    scrollToBottom();
+}
+function removeLoadingMessage(){ var l=document.getElementById('loadingMessage'); if(l)l.remove(); }
+function scrollToBottom(){ var area=document.getElementById('messagesArea'); area.scrollTop=area.scrollHeight; }
+
+function sendMessage(){
+    if(isLoading)return;
+    var input=document.getElementById('inputField');
+    var msg=input.value.trim();
+    if(!msg)return;
+    addMessage('user',msg);
+    input.value='';
+    isLoading=true;
+    sendBtn.disabled=true;
+    addLoadingMessage();
+    fetch('https://hook.eu2.make.com/60ol8d1z1iduf9ga7ossvnan936l8tf2',{
+        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg})
+    }).then(r=>r.text()).then(data=>{
+        removeLoadingMessage(); addMessage('ai',data);
+        isLoading=false; sendBtn.disabled=false;
+    }).catch(()=>{
+        removeLoadingMessage();
+        addMessage('ai','Sorry, there was an error. Please try again.');
+        isLoading=false; sendBtn.disabled=false;
+    });
+}
+function sendPrompt(text){ document.getElementById('inputField').value=text; sendMessage(); }
+function newChat(){
+    if(currentChat.messages.length>0){
+        var saved={id:chatCounter,messages:currentChat.messages.slice()};
+        chatHistory.push(saved);
+        addChatToSidebar(saved);
+        chatCounter++;
+    }
+    currentChat={id:null,messages:[]};
+    document.getElementById('messagesContainer').innerHTML='<div class="welcome-screen" id="welcomeScreen"><h2>Welcome to CogniLink AI</h2><p>How can I assist you today?</p></div>';
+    document.getElementById('inputField').value='';
+}
+function addChatToSidebar(chat){
+    var side=document.getElementById('recentChats');
+    var div=document.createElement('div');
+    div.className='chat-item';
+    div.textContent='Chat-'+chat.id;
+    div.onclick=function(){loadChat(chat.id)};
+    side.appendChild(div);
+}
+function loadChat(id){
+    var chat=chatHistory.find(c=>c.id===id);
+    if(!chat)return;
+    currentChat={id:chat.id,messages:chat.messages.slice()};
+    var c=document.getElementById('messagesContainer'); c.innerHTML='';
+    currentChat.messages.forEach(m=>addMessage(m.type,m.msg));
+}
+
+document.getElementById('sendBtn').addEventListener('click',sendMessage);
+document.getElementById('newChatBtn').addEventListener('click',newChat);
+document.getElementById('inputField').addEventListener('keypress',function(e){
+    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
+</script>
+</body>
+</html>
