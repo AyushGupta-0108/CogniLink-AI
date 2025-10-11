@@ -62,10 +62,10 @@
             text-decoration: none;
         }
         .logo img {
-    width: 40px;
-    height: auto;
-    object-fit: contain;
-}
+            width: 40px;
+            height: auto;
+            object-fit: contain;
+        }
         .nav-links {
             display: flex;
             gap: 2rem;
@@ -106,10 +106,10 @@
             box-shadow: 0 20px 50px var(--shadow);
         }
         .hero-logo img {
-    width: 120px;
-    height: auto;
-    object-fit: contain;
-}
+            width: 120px;
+            height: auto;
+            object-fit: contain;
+        }
 
         .hero h1 {
             font-size: 3.5rem;
@@ -159,6 +159,48 @@
         .btn-secondary:hover {
             border-color: var(--accent-primary);
             color: var(--accent-primary);
+        }
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            z-index: 999;
+        }
+        .scroll-indicator span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .scroll-arrow {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            font-size: 1.5rem;
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
         }
         /* Sections */
         .section {
@@ -241,12 +283,12 @@
             transform: translateY(-5px);
         }
         .demo-image {
-    width: 100%;
-    height: auto;
-    max-height: none;
-    object-fit: contain;
-    display: block;
-}
+            width: 100%;
+            height: auto;
+            max-height: none;
+            object-fit: contain;
+            display: block;
+        }
 
         .demo-content {
             padding: 1.5rem;
@@ -328,6 +370,20 @@
             nav {
                 padding: 1rem;
             }
+            
+            .scroll-indicator {
+                bottom: 1rem;
+                right: 1rem;
+            }
+            
+            .scroll-indicator span {
+                display: none;
+            }
+            
+            .scroll-arrow {
+                width: 45px;
+                height: 45px;
+            }
         }
     </style>
 </head>
@@ -356,12 +412,16 @@
                 <h1>CogniLink AI</h1>
                 <p>The digital waiter for AI services — intelligently routing complex requests to specialized AI engines for superior results and scalability.</p>
                 <div class="cta-buttons">
-                    <a href="https://drive.google.com/file/d/16yvfJdSYWzN1cVLoIy6-CTRXvY81rKmc/view?usp=drive_link" class="btn btn-primary" target="_blank">Watch Demo</a>
-                    <a href="https://ayushgupta-0108.github.io/CogniLink-AI/Beta2Mobile.html
-" class="btn btn-secondary" target="_blank">Use Now</a>
+                    <a href="https://youtu.be/r5vuiROgyjY?si=EeVxsBgVLZmRPZ3Q" class="btn btn-secondary" target="_blank">Watch Demo</a>
+                    <a href="https://drive.google.com/file/d/16yvfJdSYWzN1cVLoIy6-CTRXvY81rKmc/view?usp=drive_link" class="btn btn-secondary" target="_blank">Understand Better</a>
+                    <a href="https://ayushgupta-0108.github.io/CogniLink-AI/Beta2Mobile.html" class="btn btn-primary" target="_blank">Use Now</a>
                 </div>
             </div>
         </section>
+        <div class="scroll-indicator" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">
+            <span>Scroll to explore</span>
+            <div class="scroll-arrow">↓</div>
+        </div>
         <section id="features" class="section">
             <div class="container">
                 <h2 class="section-title">Why CogniLink AI?</h2>
@@ -411,35 +471,35 @@
             <div class="container">
                 <h2 class="section-title">Future Roadmap</h2>
                 <div class="feature-grid">
-<div class="feature-card">
-    <div class="feature-icon">🧩</div>
-    <h3>Multi-Route Expansion</h3>
-    <p>Create more classification routes (reasoning, video generation, data analysis, etc.) for broader coverage.</p>
-</div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧩</div>
+                        <h3>Multi-Route Expansion</h3>
+                        <p>Create more classification routes (reasoning, video generation, data analysis, etc.) for broader coverage.</p>
+                    </div>
 
-<div class="feature-card">
-    <div class="feature-icon">📝</div>
-    <h3>User Memory & Personalization</h3>
-    <p>Enable the system to remember user preferences and personality to deliver more tailored results.</p>
-</div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📝</div>
+                        <h3>User Memory & Personalization</h3>
+                        <p>Enable the system to remember user preferences and personality to deliver more tailored results.</p>
+                    </div>
 
-<div class="feature-card">
-    <div class="feature-icon">📢</div>
-    <h3>Community Feedback & Promotion</h3>
-    <p>Gather user feedback, iterate rapidly, and promote the restaurant analogy video to simplify onboarding.</p>
-</div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📢</div>
+                        <h3>Community Feedback & Promotion</h3>
+                        <p>Gather user feedback, iterate rapidly, and promote the restaurant analogy video to simplify onboarding.</p>
+                    </div>
 
-<div class="feature-card">
-    <div class="feature-icon">💳</div>
-    <h3>Premium API Integrations</h3>
-    <p>Secure funding to integrate high-performance paid APIs like GPT-4, Gemini, and advanced image/video models.</p>
-</div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💳</div>
+                        <h3>Premium API Integrations</h3>
+                        <p>Secure funding to integrate high-performance paid APIs like GPT-4, Gemini, and advanced image/video models.</p>
+                    </div>
 
-<div class="feature-card">
-    <div class="feature-icon">📈</div>
-    <h3>Scaling & Growth</h3>
-    <p>Focus on marketing, scaling infrastructure, and building a strong development pipeline for long-term impact.</p>
-</div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📈</div>
+                        <h3>Scaling & Growth</h3>
+                        <p>Focus on marketing, scaling infrastructure, and building a strong development pipeline for long-term impact.</p>
+                    </div>
 
                     <div class="feature-card">
                         <div class="feature-icon">🤖</div>
@@ -495,14 +555,14 @@
                         <a href="https://www.behance.net/ayushgupta0108" target="_blank" title="Behance">Be</a>
                         <a href="https://github.com/AyushGupta-0108" target="_blank" title="GitHub">GH</a>
                         <a href="https://www.instagram.com/cognilink.ai" target="_blank" title="Instagram">IG</a>
-
+                        <a href="https://youtube.com/@cognilink-ai?si=6pAdF-hF3S3OhGXr" target="_blank" title="Youtube">YT</a>
                     </div>
                 </div>
                 
                 <div class="footer-section">
                     <h3>Quick Links</h3>
-                    <a href="https://drive.google.com/file/d/16yvfJdSYWzN1cVLoIy6-CTRXvY81rKmc/view?usp=drive_link" target="_blank">Demo Video</a>
-                    <a href="https://github.com/AyushGupta-0108/CogniLink-AI" target="_blank">Source Code</a>
+                    <a href="https://youtu.be/r5vuiROgyjY?si=EeVxsBgVLZmRPZ3Q" target="_blank">Demo Video</a>
+                    <a href="https://drive.google.com/file/d/16yvfJdSYWzN1cVLoIy6-CTRXvY81rKmc/view?usp=drive_link" target="_blank">Explanation of System</a>
                     <a href="https://ayushgupta-0108.github.io/CogniLink-AI/Prototype.html" target="_blank">Use now</a>
                 </div>
             </div>
@@ -513,11 +573,4 @@
         </div>
     </footer>
 </body>
-
 </html>
-
-
-
-
-
-
