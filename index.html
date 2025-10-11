@@ -191,6 +191,15 @@
             background: rgba(11, 15, 25, 0.8);
             backdrop-filter: blur(10px);
         }
+        .scroll-indicator.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .scroll-indicator.at-bottom .scroll-arrow {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
+        }
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% {
                 transform: translateY(0);
@@ -418,7 +427,7 @@
                 </div>
             </div>
         </section>
-        <div class="scroll-indicator" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">
+        <div class="scroll-indicator" onclick="handleScroll()">
             <span>Scroll to explore</span>
             <div class="scroll-arrow">↓</div>
         </div>
@@ -555,14 +564,14 @@
                         <a href="https://www.behance.net/ayushgupta0108" target="_blank" title="Behance">Be</a>
                         <a href="https://github.com/AyushGupta-0108" target="_blank" title="GitHub">GH</a>
                         <a href="https://www.instagram.com/cognilink.ai" target="_blank" title="Instagram">IG</a>
-                        <a href="https://youtube.com/@cognilink-ai?si=6pAdF-hF3S3OhGXr" target="_blank" title="Youtube">YT</a>
+                        <a href="https://youtube.com/@cognilink-ai?si=6pAdF-hF3S3OhGXr" target="_blank" title="YouTube">YT</a>
                     </div>
                 </div>
                 
                 <div class="footer-section">
                     <h3>Quick Links</h3>
                     <a href="https://youtu.be/r5vuiROgyjY?si=EeVxsBgVLZmRPZ3Q" target="_blank">Demo Video</a>
-                    <a href="https://drive.google.com/file/d/16yvfJdSYWzN1cVLoIy6-CTRXvY81rKmc/view?usp=drive_link" target="_blank">Explanation of System</a>
+                    <a href="https://youtube.com/@cognilink-ai?si=6pAdF-hF3S3OhGXr" target="_blank">Understand better</a>
                     <a href="https://ayushgupta-0108.github.io/CogniLink-AI/Prototype.html" target="_blank">Use now</a>
                 </div>
             </div>
@@ -572,5 +581,38 @@
             </div>
         </div>
     </footer>
+    <script>
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+        
+        // Function to handle scroll button click
+        function handleScroll() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            
+            // Check if at bottom
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                // Scroll to top
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            } else {
+                // Scroll down by viewport height
+                window.scrollBy({top: clientHeight - 100, behavior: 'smooth'});
+            }
+        }
+        
+        // Update arrow direction based on scroll position
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            
+            // Check if user is at bottom
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                scrollIndicator.classList.add('at-bottom');
+            } else {
+                scrollIndicator.classList.remove('at-bottom');
+            }
+        });
+    </script>
 </body>
 </html>
