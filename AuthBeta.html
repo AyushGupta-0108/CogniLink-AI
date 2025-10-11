@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -120,11 +121,32 @@ body { font-family: Arial, sans-serif; background:#111827; color:white; display:
     </div>
 </div>
 
+<!-- Login notice popup -->
+<div id="loginNoticePopup" style="
+    display:none;
+    position:fixed;
+    top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center; align-items:center;
+    z-index:10000;
+">
+  <div style="
+      background:#1f2937; color:white; padding:2rem; border-radius:1rem;
+      text-align:center; max-width:400px; width:90%;
+  ">
+    <h2 style="margin:0 0 1rem;">⚠️ Please login to use</h2>
+    <button id="noticeOkBtn" style="
+        margin-top:1rem; padding:0.5rem 1rem; background:#2563eb; color:white;
+        border:none; border-radius:0.5rem; cursor:pointer;
+    ">OK</button>
+  </div>
+</div>
+
 <!-- Firebase Scripts -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-analytics.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAehpDu97VYZiW3Gs39wliUzrfLMDiQByw",
@@ -141,7 +163,11 @@ body { font-family: Arial, sans-serif; background:#111827; color:white; display:
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
-  // expose to non-module scripts
+  // Request additional profile information
+  provider.addScope('profile');
+  provider.addScope('email');
+
+  // Expose to non-module scripts
   window.auth = auth;
   window.provider = provider;
   window.isLoggedIn = false;
@@ -151,17 +177,48 @@ body { font-family: Arial, sans-serif; background:#111827; color:white; display:
 
   if (loginBtn) {
     loginBtn.addEventListener('click', async () => {
-      try { await signInWithPopup(auth, provider); }
-      catch(e){ alert("Login failed: "+e.message); }
+      try { 
+        const result = await signInWithPopup(auth, provider);
+        console.log('Login successful:', result.user.email);
+      }
+      catch(e){ 
+        console.error('Login error:', e);
+        alert("Login failed: " + e.message); 
+      }
     });
   }
 
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, async (user) => {
     window.isLoggedIn = !!user;
+    
     if(user){
+      // Ensure display name is set from Google profile
+      if (!user.displayName) {
+        try {
+          // Try to get display name from provider data
+          const providerData = user.providerData[0];
+          if (providerData && providerData.displayName) {
+            await updateProfile(user, {
+              displayName: providerData.displayName,
+              photoURL: providerData.photoURL || user.photoURL
+            });
+            console.log('Updated user profile with display name:', providerData.displayName);
+          } else if (user.email) {
+            // Fallback: use email name part as display name
+            const emailName = user.email.split('@')[0];
+            await updateProfile(user, {
+              displayName: emailName
+            });
+            console.log('Set display name from email:', emailName);
+          }
+        } catch (error) {
+          console.error('Error updating profile:', error);
+        }
+      }
+      
       if(loginBtn) loginBtn.style.display='none';
       if(sendBtn) sendBtn.disabled=false;
-      console.log('Logged in as', user.email);
+      console.log('Logged in as:', user.displayName || user.email);
     } else {
       if(loginBtn) loginBtn.style.display='block';
       if(sendBtn) sendBtn.disabled=true;
@@ -172,9 +229,7 @@ body { font-family: Arial, sans-serif; background:#111827; color:white; display:
   window.logout = () => signOut(auth).then(()=>console.log("Logged out"));
 </script>
 
-
-
-<!-- Existing chat script -->
+<!-- Chat functionality script -->
 <script>
 var isLoading=false;
 var chatHistory=[];
@@ -196,6 +251,7 @@ function addMessage(type,content){
     c.appendChild(msg);
     scrollToBottom();
 }
+
 function addLoadingMessage(){
     var c=document.getElementById('messagesContainer');
     var msg=document.createElement('div');
@@ -205,31 +261,51 @@ function addLoadingMessage(){
     c.appendChild(msg);
     scrollToBottom();
 }
-function removeLoadingMessage(){ var l=document.getElementById('loadingMessage'); if(l)l.remove(); }
-function scrollToBottom(){ var area=document.getElementById('messagesArea'); area.scrollTop=area.scrollHeight; }
+
+function removeLoadingMessage(){ 
+    var l=document.getElementById('loadingMessage'); 
+    if(l)l.remove(); 
+}
+
+function scrollToBottom(){ 
+    var area=document.getElementById('messagesArea'); 
+    area.scrollTop=area.scrollHeight; 
+}
 
 function sendMessage(){
     if(isLoading)return;
     var input=document.getElementById('inputField');
     var msg=input.value.trim();
     if(!msg)return;
+    
     addMessage('user',msg);
     input.value='';
     isLoading=true;
     sendBtn.disabled=true;
     addLoadingMessage();
+    
     fetch('https://hook.eu2.make.com/60ol8d1z1iduf9ga7ossvnan936l8tf2',{
-        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg})
+        method:'POST', 
+        headers:{'Content-Type':'application/json'}, 
+        body:JSON.stringify({message:msg})
     }).then(r=>r.text()).then(data=>{
-        removeLoadingMessage(); addMessage('ai',data);
-        isLoading=false; sendBtn.disabled=false;
+        removeLoadingMessage(); 
+        addMessage('ai',data);
+        isLoading=false; 
+        sendBtn.disabled=false;
     }).catch(()=>{
         removeLoadingMessage();
         addMessage('ai','Sorry, there was an error. Please try again.');
-        isLoading=false; sendBtn.disabled=false;
+        isLoading=false; 
+        sendBtn.disabled=false;
     });
 }
-function sendPrompt(text){ document.getElementById('inputField').value=text; sendMessage(); }
+
+function sendPrompt(text){ 
+    document.getElementById('inputField').value=text; 
+    sendMessage(); 
+}
+
 function newChat(){
     if(currentChat.messages.length>0){
         var saved={id:chatCounter,messages:currentChat.messages.slice()};
@@ -241,6 +317,7 @@ function newChat(){
     document.getElementById('messagesContainer').innerHTML='<div class="welcome-screen" id="welcomeScreen"><h2>Welcome to CogniLink AI</h2><p>How can I assist you today?</p></div>';
     document.getElementById('inputField').value='';
 }
+
 function addChatToSidebar(chat){
     var side=document.getElementById('recentChats');
     var div=document.createElement('div');
@@ -249,54 +326,41 @@ function addChatToSidebar(chat){
     div.onclick=function(){loadChat(chat.id)};
     side.appendChild(div);
 }
+
 function loadChat(id){
     var chat=chatHistory.find(c=>c.id===id);
     if(!chat)return;
     currentChat={id:chat.id,messages:chat.messages.slice()};
-    var c=document.getElementById('messagesContainer'); c.innerHTML='';
+    var c=document.getElementById('messagesContainer'); 
+    c.innerHTML='';
     currentChat.messages.forEach(m=>addMessage(m.type,m.msg));
 }
 
 document.getElementById('sendBtn').addEventListener('click',sendMessage);
 document.getElementById('newChatBtn').addEventListener('click',newChat);
 document.getElementById('inputField').addEventListener('keypress',function(e){
-    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); }
+    if(e.key==='Enter'&&!e.shiftKey){ 
+        e.preventDefault(); 
+        sendMessage(); 
+    }
 });
-</script>  <!-- ✅ close this script first -->
+</script>
 
-<!-- Login notice popup: place this outside any <script> tags, near the end of body -->
-<div id="loginNoticePopup" style="
-    display:none;
-    position:fixed;
-    top:0; left:0; width:100%; height:100%;
-    background:rgba(0,0,0,0.6);
-    justify-content:center; align-items:center;
-    z-index:10000;
-">
-  <div style="
-      background:#1f2937; color:white; padding:2rem; border-radius:1rem;
-      text-align:center; max-width:400px; width:90%;
-  ">
-    <h2 style="margin:0 0 1rem;">⚠️ Please login to use</h2>
-    <button id="noticeOkBtn" style="
-        margin-top:1rem; padding:0.5rem 1rem; background:#2563eb; color:white;
-        border:none; border-radius:0.5rem; cursor:pointer;
-    ">OK</button>
-  </div>
-</div>
-
+<!-- Login notice popup handler -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const inputField = document.getElementById('inputField');
   const loginNoticePopup = document.getElementById('loginNoticePopup');
   const noticeOkBtn = document.getElementById('noticeOkBtn');
 
-  if (!inputField) { console.error("inputField not found"); return; }
+  if (!inputField) { 
+    console.error("inputField not found"); 
+    return; 
+  }
 
   let noticeShown = false;
 
   inputField.addEventListener('focus', () => {
-    // use the global flag set by the module script
     if (!window.isLoggedIn && !noticeShown) {
       loginNoticePopup.style.display = 'flex';
       inputField.blur();
@@ -313,4 +377,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
-
